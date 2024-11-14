@@ -1,4 +1,8 @@
 plugins {
+    //protobuf plugin
+//    It assembles the Protobuf Compiler (protoc) command line and uses it to generate Java source files out of your proto files.
+//    It adds the generated Java source files to the input of the corresponding Java compilation unit (sourceSet in a Java project;),
+//    so that they can be compiled along with your Java sources.
     id "com.google.protobuf" version "0.9.4"
     id 'java'
 }
@@ -10,8 +14,12 @@ repositories {
     mavenCentral()
 }
 
+//Customizing Protobuf compilation  => https://github.com/google/protobuf-gradle-plugin
 protobuf {
     // Configure the protoc executable
+//    By default the plugin will search for the protoc executable in the system search path.4
+//    We change this and take the advantage of pre-compiled protoc that published on Maven Central
+
     protoc {
         // Download from repositories
         artifact = 'com.google.protobuf:protoc:4.28.3'
@@ -28,11 +36,18 @@ protobuf {
             // path = 'tools/protoc-gen-grpc-java'
         }
     }
+
+//    Customize code generation tasks
     generateProtoTasks {
         // all() returns the collection of all protoc tasks
-        all ()*.plugins {// Here you can configure the task
-            grpc{}
+        all()*.plugins {
+            // Here you can configure the task
+            grpc {}
         }
+
+        // In addition to all(), you may select tasks by various criteria:
+        // (Java-only) returns tasks for a sourceSet
+        //ofSourceSet('main')
     }
 }
 
@@ -47,9 +62,13 @@ dependencies {
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
 }
 
-sourceSets{
-    main{
-        java{
+//The Protobuf plugin assumes Protobuf files (.proto) are organized in the same way as Java source files, in sourceSets.
+//The Protobuf files of a sourceSet are compiled in a single protoc run,
+//and the generated files are added to the input of the Java compilation run of that sourceSet (or variant).
+sourceSets {
+    main {
+        java {
+//            Customizing source directories
             srcDirs 'build/generated/source/proto/main/grpc'
             srcDirs 'build/generated/source/proto/main/java'
         }
